@@ -9,9 +9,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.LocalDate;
 
 @RestController
@@ -25,12 +31,14 @@ public class ProductController {
     public Page<ProductResponse> getAll(@PageableDefault(page = 0 , size = 10) Pageable pageable,
                                         @RequestParam(required = false) String productCode,
                                         @RequestParam(required = false) String productName,
-                                        @RequestParam(required = false) LocalDate startCreate,
-                                        @RequestParam(required = false) LocalDate endCreate){
-        return productService.getProducts(productCode , productName , startCreate , endCreate ,pageable);
+                                        @RequestParam(required = false) Long category,
+                                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startCreate,
+                                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endCreate){
+
+        return productService.getProducts(productCode , productName , startCreate , endCreate ,category , pageable);
     }
 
-    @PostMapping("/add")
+    @PostMapping(value = "/add")
     public ProductResponse add(@Validated({Create.class}) @ModelAttribute ProductRequest request){
         return productService.addProduct(request);
     }
@@ -49,5 +57,26 @@ public class ProductController {
     @GetMapping("/detail")
     public ProductResponse detail(@RequestParam Long id){
         return productService.detailProduct(id);
+    }
+
+    @GetMapping("/count")
+    public Integer count(){
+        return productService.countProduct();
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportExcel() {
+        try {
+            ByteArrayOutputStream outputStream = productService.exportProductToExecl();
+            byte[] bytes = outputStream.toByteArray();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Disposition", "attachment; filename=data.xlsx");
+
+            return new ResponseEntity<>(bytes, headers, HttpStatus.OK);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

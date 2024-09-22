@@ -20,7 +20,7 @@ public class UploadImage {
         } else if (fileName != null && !fileName.endsWith(".jpg") && !fileName.endsWith(".png")) {
 
         }
-        File newFile = new File("D:/finally-2/img/" + fileName);
+        File newFile = new File("D:/tt2/finally-2/img/" + fileName);
 
         try {
             inputStream = file.getInputStream();

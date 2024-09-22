@@ -2,10 +2,10 @@ package com.example.finally2.dto.productdto.response;
 
 import com.example.finally2.dto.categorydto.response.CategoryResponse;
 import com.example.finally2.dto.productcategorydto.response.ProductCategoryResponse;
+import com.example.finally2.util.status.ProductCategoryStatus;
 import com.example.finally2.util.status.ProductStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +15,7 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class ProductResponse{
+public class ProductResponse {
 
     private Long id;
     private String productName;
@@ -29,6 +29,7 @@ public class ProductResponse{
     private String modifiedBy;
     private String createBy;
     private ProductStatus status;
+    private String categorys;
 
     @JsonIgnore
     private List<ProductCategoryResponse> productCategoryResponses = new ArrayList<>();
@@ -37,12 +38,24 @@ public class ProductResponse{
 
     public List<CategoryResponse> getCategoryResponses() {
         List<CategoryResponse> categoryResponsesNew = new ArrayList<>();
-        if(!this.productCategoryResponses.isEmpty()){
+        if (!this.productCategoryResponses.isEmpty()) {
             this.productCategoryResponses.forEach(productCategoryResponse -> {
-                categoryResponsesNew.add(productCategoryResponse.getCategoryResponse());
+                 if(productCategoryResponse.getStatus().equals(ProductCategoryStatus.ACTIVE)){
+                     categoryResponsesNew.add(productCategoryResponse.getCategoryResponse());
+                 }
             });
             return categoryResponsesNew;
+
         }
         return categoryResponses;
+    }
+    public String getCategorys(){
+        List<String> code = new ArrayList<>();
+        this.productCategoryResponses.forEach(productCategoryResponse -> {
+            if(productCategoryResponse.getStatus().equals(ProductCategoryStatus.ACTIVE)) {
+                code.add(productCategoryResponse.getCategoryResponse().getCategoryCode());
+            }
+        });
+        return code.toString();
     }
 }

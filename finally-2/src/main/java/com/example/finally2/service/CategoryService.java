@@ -42,7 +42,7 @@ public class CategoryService {
     @Autowired
     private ExportExecl exportExecl;
 
-    private final String FILE_PATH = System.getProperty("user.home") + File.separator + "Records.xlsx";
+//    private final String FILE_PATH = System.getProperty("user.home") + File.separator + "Records.xlsx";
 
 
     @Autowired
@@ -60,6 +60,10 @@ public class CategoryService {
                 pageable);
         categoriesExecl = categories.getContent();
         return categories.map(categoryMapperResponseWithPros::toDTO);
+    }
+
+    public List<CategoryResponse> getCategorysNoProduct(){
+        return categoryMapperResponse.listToDTO(categoryRepository.findAllByStatus(CategoryStatus.ACTIVE));
     }
 
     @Transactional
@@ -89,9 +93,4 @@ public class CategoryService {
         category.setStatus(CategoryStatus.STOPWORKING);
         return categoryMapperResponse.toDTO(category);
     }
-
-    public void exportCategorysToExecl(String fileNam) throws IOException, IllegalAccessException {
-         exportExecl.exportToExcel(fileNam , Collections.singletonList(categoriesExecl));
-    }
-
 }

@@ -7,22 +7,13 @@ import com.example.finally2.dto.categorydto.response.CategoryResponse;
 import com.example.finally2.dto.categorydto.response.CategoryResponseWithProducts;
 import com.example.finally2.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/category")
@@ -39,6 +30,11 @@ public class CategoryController {
                                                      @RequestParam(required = false) LocalDate endCreate
                                                      ){
         return categoryService.getCategorys( categoryCode , categoryName , startCreate , endCreate, pageable);
+    }
+
+    @GetMapping("/no-product")
+    public List<CategoryResponse> getAllCategoryNoProduct(){
+        return categoryService.getCategorysNoProduct();
     }
 
     @PostMapping("/add")
@@ -61,24 +57,4 @@ public class CategoryController {
         return categoryService.deleteCategory(id);
     }
 
-    @GetMapping("/export")
-    public ResponseEntity<Resource> exportData() {
-        try {
-            String fileName = "Records.xlsx"; // Tên file xuất ra
-
-            // Xuất dữ liệu ra file
-            categoryService.exportCategorysToExecl(fileName);
-
-            // Tạo file resource
-            File file = new File(System.getProperty("user.home") + File.separator + fileName);
-            InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
-
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
-                    .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-                    .body(resource);
-        } catch (IOException | IllegalAccessException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
-    }
 }

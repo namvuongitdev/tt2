@@ -31,7 +31,7 @@ public class ProductRequest {
 
     @NotBlank(message = "NotBlank" , groups = {Create.class})
     @Length(min = 3 , max = 50 , message = "Length" , groups = {Create.class})
-    @UniqueProductCode(message = "UniqueProductCode")
+    @UniqueProductCode(message = "UniqueProductCode" , groups = {Create.class})
     private String productCode;
 
     @NotBlank(message = "NotBlank" , groups = {Create.class , Update.class})
