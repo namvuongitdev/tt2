@@ -2,11 +2,11 @@ package com.example.finally2.service;
 
 import com.example.finally2.dto.productdto.request.ProductRequest;
 import com.example.finally2.dto.productdto.response.ProductResponse;
-import com.example.finally2.dto.productdto.response.ProductResponseExecl;
 import com.example.finally2.entity.Category;
 import com.example.finally2.entity.CompositeKey;
 import com.example.finally2.entity.Product;
 import com.example.finally2.entity.ProductCategory;
+import com.example.finally2.execption.custom.ListIsEmptyExecption;
 import com.example.finally2.execption.custom.NotFoundExecption;
 import com.example.finally2.mapper.productmapper.request.ProductMapperReqeust;
 import com.example.finally2.mapper.productmapper.response.ProductMapperReponseExecl;
@@ -24,12 +24,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -56,7 +53,7 @@ public class ProductService {
     @Autowired
     private CategoryRepository categoryRepository;
 
-    private List<ProductResponseExecl> productResponseExeclArrayList = new ArrayList<>();
+    private Page<Product> productExecl = null;
 
     public Page<ProductResponse> getProducts(String productCode, String productName, LocalDate startCreate, LocalDate endCreate, Long categoryId, Pageable pageable) {
         Page<Product> products = productRepository.finAllProduct(ProductStatus.ACTIVE,
@@ -66,8 +63,14 @@ public class ProductService {
                 endCreate,
                 categoryId,
                 pageable);
+        productExecl = productRepository.finAllProduct(ProductStatus.ACTIVE,
+                productCode,
+                productName,
+                startCreate,
+                endCreate,
+                categoryId,
+                null);
         Page<ProductResponse> productResponses = products.map(productMapperResponse::toDTO);
-        productResponseExeclArrayList = productMapperReponseExecl.listToDTO(productResponses.getContent());
         return productResponses;
     }
 
@@ -75,9 +78,12 @@ public class ProductService {
     public ProductResponse addProduct(ProductRequest request) {
         List<Category> categories = categoryRepository.findAllById(request.getCategorys());
 
-        String url = uploadImage.upload(request.getFile());
+
         Product product = productMapperReqeust.toEntity(request);
-        product.setImage(url);
+        if(request.getFile() != null){
+            String url = uploadImage.upload(request.getFile());
+            product.setImage(url);
+        }
         for (int i = 0; i < categories.size(); i++) {
             ProductCategory productCategory = new ProductCategory();
             this.newProductCategory(productCategory, new CompositeKey(product, categories.get(i)), ProductCategoryStatus.ACTIVE, true);
@@ -152,13 +158,12 @@ public class ProductService {
         productCategory.setCreateBy(ValueDefault.modifiedBy);
     }
 
-    public Integer countProduct() {
-        return productRepository.countAllByStatus(ProductStatus.ACTIVE);
-    }
-
-
     public ByteArrayOutputStream exportProductToExecl() throws IOException {
-        return exportExecl.exportToExcel(productResponseExeclArrayList);
+        if (productExecl == null) {
+            throw new ListIsEmptyExecption("errorListExecl");
+        }
+        Page<ProductResponse> productResponses = productExecl.map(productMapperResponse::toDTO);
+        return exportExecl.exportToExcel(productMapperReponseExecl.listToDTO(productResponses.getContent()));
     }
 
 }

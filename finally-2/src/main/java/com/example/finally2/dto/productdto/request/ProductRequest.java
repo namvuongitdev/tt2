@@ -46,7 +46,7 @@ public class ProductRequest {
     @Positive(message = "Positive" , groups = {Create.class , Update.class})
     private Long quantity;
 
-    @NotNull(message = "NotNull", groups = {Create.class})
+//    @NotNull(message = "NotNull", groups = {Create.class})
     private MultipartFile file;
 
     @NotEmpty(message = "NotEmpty", groups = {Create.class , Update.class})

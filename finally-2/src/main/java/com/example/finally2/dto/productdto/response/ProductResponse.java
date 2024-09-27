@@ -4,6 +4,7 @@ import com.example.finally2.dto.categorydto.response.CategoryResponse;
 import com.example.finally2.dto.productcategorydto.response.ProductCategoryResponse;
 import com.example.finally2.util.status.ProductCategoryStatus;
 import com.example.finally2.util.status.ProductStatus;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import java.time.LocalDate;
@@ -24,8 +25,13 @@ public class ProductResponse {
     private Double price;
     private Long quantity;
     private String image;
+
+    @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate createAt;
+
+    @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate modifiedDate;
+
     private String modifiedBy;
     private String createBy;
     private ProductStatus status;

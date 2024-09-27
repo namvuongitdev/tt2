@@ -9,7 +9,7 @@ import java.util.Date;
 public class DateUtil {
 
     public static LocalDate getCurrentDate() {
-        DateTimeFormatter dtm = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+        DateTimeFormatter dtm = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         LocalDate now = LocalDate.now();
         return now;
     }

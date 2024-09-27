@@ -1,5 +1,7 @@
 package com.example.finally2.execption;
 
+import com.example.finally2.execption.custom.FileExecption;
+import com.example.finally2.execption.custom.ListIsEmptyExecption;
 import com.example.finally2.execption.custom.NotFoundExecption;
 import com.example.finally2.execption.response.ErrorResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,9 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,6 +45,7 @@ public class GlobalExceptionHandler {
             String fieldName = ((FieldError) error).getField();
             String errorMessage = messageSource.getMessage(error.getCode(), new Object[]{} , LocaleContextHolder.getLocale() );
             errors.put(fieldName, errorMessage);
+            errors.put("message", errorMessage);
         });
 
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
@@ -58,6 +64,47 @@ public class GlobalExceptionHandler {
         }
         String message = messageSource.getMessage("checkRequestParameter", null,LocaleContextHolder.getLocale());
         errors.put(ex.getParameterName(),message);
+        errors.put("message",message);
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Map<String, String>> handleTypeInputExceptions(MethodArgumentTypeMismatchException ex) {
+        if (!errors.isEmpty()) {
+            errors.clear();
+        }
+
+        String errorMessage = messageSource.getMessage("typeMismatch", null, LocaleContextHolder.getLocale());
+        errors.put("message", errorMessage + ex.getName());
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(FileExecption.class)
+    public ResponseEntity<Map<String , String>> handleFile(FileExecption ex){
+        if (!errors.isEmpty()) {
+            errors.clear();
+        }
+        String errorMessage = messageSource.getMessage(ex.getMessage(), null, LocaleContextHolder.getLocale());
+        errors.put("message", errorMessage );
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Map<String , String>> handleMaxSizeException(MaxUploadSizeExceededException exc) {
+        if (!errors.isEmpty()) {
+            errors.clear();
+        }
+        String errorMessage = messageSource.getMessage("handleFileSize", null, LocaleContextHolder.getLocale());
+        errors.put("message", errorMessage );
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ListIsEmptyExecption.class)
+    public ResponseEntity<Map<String , String>> handleListIsEmptyExecption(ListIsEmptyExecption ex){
+        String message = messageSource.getMessage(ex.getMessage(), null,  LocaleContextHolder.getLocale());
+        errors.put("message",  message);
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
 }

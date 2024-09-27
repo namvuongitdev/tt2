@@ -5,11 +5,12 @@ import com.example.finally2.entity.Category;
 import com.example.finally2.mapper.MapperBase;
 import com.example.finally2.util.data.ValueDefault;
 import com.example.finally2.util.date.DateUtil;
+import com.example.finally2.util.status.CategoryStatus;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel = "spring" , imports = {DateUtil.class , ValueDefault.class})
+@Mapper(componentModel = "spring" , imports = {DateUtil.class , ValueDefault.class , CategoryStatus.class})
 public interface CategoryMapperRequest extends MapperBase<Category , CategoryRequest> {
 
     @Override
@@ -17,6 +18,7 @@ public interface CategoryMapperRequest extends MapperBase<Category , CategoryReq
     @Mapping(target = "modifiedDate" , expression = "java(DateUtil.getCurrentDate())")
     @Mapping(target = "modifiedBy" , expression = "java(ValueDefault.modifiedBy)")
     @Mapping(target = "createBy" , expression = "java(ValueDefault.modifiedBy)")
+    @Mapping(target = "status" , expression = "java(CategoryStatus.ACTIVE)")
     Category toEntity(CategoryRequest request);
 
     @Mapping(target = "modifiedDate" , expression = "java(DateUtil.getCurrentDate())")

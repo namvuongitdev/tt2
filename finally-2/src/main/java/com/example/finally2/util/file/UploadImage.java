@@ -1,5 +1,6 @@
 package com.example.finally2.util.file;
 
+import com.example.finally2.execption.custom.FileExecption;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
@@ -16,9 +17,9 @@ public class UploadImage {
         String fileName = file.getOriginalFilename();
 
         if (file.isEmpty()) {
-
+            throw new FileExecption("handleFileIsEmpty");
         } else if (fileName != null && !fileName.endsWith(".jpg") && !fileName.endsWith(".png")) {
-
+           throw new RuntimeException("handleFileType");
         }
         File newFile = new File("D:/tt2/finally-2/img/" + fileName);
 
@@ -38,7 +39,8 @@ public class UploadImage {
             return fileName;
         } catch (Exception e) {
             System.out.println("execption : " + e.getMessage());
-            return null;
+            throw new FileExecption("handleErrorFile");
+
         }
     }
 }

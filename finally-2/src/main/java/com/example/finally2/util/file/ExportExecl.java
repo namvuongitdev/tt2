@@ -1,6 +1,6 @@
 package com.example.finally2.util.file;
 
-import com.example.finally2.dto.productdto.response.ProductResponseExecl;
+import com.example.finally2.execption.custom.ListIsEmptyExecption;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -15,9 +15,8 @@ import java.util.List;
 public class ExportExecl {
 
     public <T> ByteArrayOutputStream exportToExcel(List<T> arrayList) throws IOException {
-        // Tạo workbook và sheet
         if (arrayList == null || arrayList.isEmpty()) {
-            throw new IllegalArgumentException("Danh sách sản phẩm không được rỗng");
+            throw new ListIsEmptyExecption("errorListExecl");
         }
 
         Workbook workbook = new XSSFWorkbook();
@@ -27,14 +26,12 @@ public class ExportExecl {
         Method[] methods = arrayList.get(0).getClass().getDeclaredMethods();
         int colNum = 0;
 
-        // Tạo tiêu đề cột
         for (Method method : methods) {
             if (method.getName().startsWith("get")) {
                 headerRow.createCell(colNum++).setCellValue(method.getName().substring(3));
             }
         }
 
-        // Xuất dữ liệu
         int rowNum = 1;
         for (T record : arrayList) {
             Row row = sheet.createRow(rowNum++);

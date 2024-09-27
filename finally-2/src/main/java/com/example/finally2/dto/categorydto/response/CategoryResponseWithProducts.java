@@ -5,6 +5,7 @@ import com.example.finally2.dto.productdto.response.ProductResponse;
 import com.example.finally2.dto.productdto.response.ProductResponseToCategory;
 import com.example.finally2.util.status.CategoryStatus;
 import com.example.finally2.util.status.ProductCategoryStatus;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,9 +25,14 @@ public class CategoryResponseWithProducts {
     private String categoryName;
     private String categoryCode;
     private String description;
+
+    @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate createAt;
+
+    @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate modifiedDate;
     private String modifiedBy;
+    private String createBy;
     private String image;
     private CategoryStatus status;
 

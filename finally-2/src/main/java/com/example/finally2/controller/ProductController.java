@@ -4,18 +4,20 @@ import com.example.finally2.constraint.groupvalidator.Create;
 import com.example.finally2.constraint.groupvalidator.Update;
 import com.example.finally2.dto.productdto.request.ProductRequest;
 import com.example.finally2.dto.productdto.response.ProductResponse;
+import com.example.finally2.dto.productdto.response.ProductResponseExecl;
 import com.example.finally2.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -28,12 +30,13 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping("")
-    public Page<ProductResponse> getAll(@PageableDefault(page = 0 , size = 10) Pageable pageable,
+    public Page<ProductResponse> getAll(@PageableDefault(page = 0 , size = 10) @SortDefault(sort = "createAt" ,direction = Sort.Direction.DESC)
+                                        Pageable pageable,
                                         @RequestParam(required = false) String productCode,
                                         @RequestParam(required = false) String productName,
                                         @RequestParam(required = false) Long category,
-                                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startCreate,
-                                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endCreate){
+                                        @RequestParam(required = false) @DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate startCreate,
+                                        @RequestParam(required = false) @DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate endCreate){
 
         return productService.getProducts(productCode , productName , startCreate , endCreate ,category , pageable);
     }
@@ -57,11 +60,6 @@ public class ProductController {
     @GetMapping("/detail")
     public ProductResponse detail(@RequestParam Long id){
         return productService.detailProduct(id);
-    }
-
-    @GetMapping("/count")
-    public Integer count(){
-        return productService.countProduct();
     }
 
     @GetMapping("/export")
