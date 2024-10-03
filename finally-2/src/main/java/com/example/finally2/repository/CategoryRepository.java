@@ -10,13 +10,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     @Query(value = "select distinct cte from Category cte left join fetch cte.productCategories procate " +
             "left join fetch procate.id.product pro where cte.status = :status and" +
-            "(:code is null or LOWER(cte.categoryCode) LIKE LOWER(CONCAT('%', :code, '%'))) and" +
-            "(:name is null or LOWER(cte.categoryName) LIKE LOWER(CONCAT('%', :name, '%'))) and" +
+            "(:code is null or LOWER(cte.categoryCode) LIKE LOWER(:code) ESCAPE '\\') and" +
+            "(:name is null or LOWER(cte.categoryName) LIKE LOWER(:name) ESCAPE '\\') and" +
             "(:startCreate is null or cte.createAt >= :startCreate) and" +
             "(:endCreate is null or cte.createAt <= :endCreate)"
     )
@@ -27,9 +28,13 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
                                    @Param("endCreate") LocalDate endCreate,
                                    Pageable pageable);
 
-    boolean existsByCategoryCode(String categoryCode);
-
-    Integer countAllByStatus(CategoryStatus status);
+    boolean existsByCategoryCodeAndStatus(String categoryCode, CategoryStatus active);
 
     List<Category> findAllByStatus(CategoryStatus status);
+
+    @Query(value = "select cate from Category cate where cate.id=?1 and cate.status='ACTIVE'")
+    Optional<Category> getCategoryById(Long id);
+
+    @Query(value = "select cate from Category  cate where cate.id in ?1 and cate.status = 'ACTIVE'")
+    List<Category> getAllByIdsAndStatus(List<Long> categors);
 }

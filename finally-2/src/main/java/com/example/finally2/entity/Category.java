@@ -26,7 +26,7 @@ public class Category extends EntityBase {
     @Column(name = "category_name")
     private String categoryName;
 
-    @Column(name = "category_code" , unique = true)
+    @Column(name = "category_code")
     private String categoryCode;
 
     @Column(name = "description")

@@ -25,4 +25,11 @@ public class DateUtil {
         sdf.applyPattern("dd/MM/yyyy");
         return sdf.format(d);
     }
+
+    public static String formatLocaleDate(LocalDate localDate){
+        DateTimeFormatter formatter  = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String formattedDate = localDate.format(formatter);
+        return formattedDate;
+    }
+
 }

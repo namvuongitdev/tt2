@@ -26,14 +26,16 @@ public class CategoryRequest {
     private String categoryCode;
 
     @NotBlank(message = "NotBlank" , groups = {Create.class , Update.class})
-    @Length(min = 3 , max = 50 , message = "Length" , groups = {Create.class , Update.class})
+    @Length(min = 3 , max = 250 , message = "Length" , groups = {Create.class , Update.class})
     private String categoryName;
 
     @NotBlank(message = "NotBlank" , groups = {Create.class , Update.class})
-    @Length(min = 3 , max = 50 , message = "Length" , groups = {Create.class ,Update.class})
+    @Length(min = 3 , max = 250 , message = "Length" , groups = {Create.class ,Update.class})
     private String description;
 
 //    @NotNull(message = "NotNull" , groups = Create.class)
     private MultipartFile file;
+
+    private boolean removeImage = false;
 
 }

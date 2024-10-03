@@ -13,6 +13,7 @@ public interface ProductMapperResponse extends MapperBase<Product , ProductRespo
 
     @Override
     @Mapping(target = "productCategoryResponses" , source = "productCategories")
+    @Mapping(target = "imageNotBase" , source = "image")
     ProductResponse toDTO(Product product);
 
     @Override

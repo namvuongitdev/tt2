@@ -37,7 +37,6 @@ public class ProductController {
                                         @RequestParam(required = false) Long category,
                                         @RequestParam(required = false) @DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate startCreate,
                                         @RequestParam(required = false) @DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate endCreate){
-
         return productService.getProducts(productCode , productName , startCreate , endCreate ,category , pageable);
     }
 
@@ -63,9 +62,13 @@ public class ProductController {
     }
 
     @GetMapping("/export")
-    public ResponseEntity<byte[]> exportExcel() {
+    public ResponseEntity<byte[]> exportExcel( @RequestParam(required = false) String productCode,
+                                               @RequestParam(required = false) String productName,
+                                               @RequestParam(required = false) Long category,
+                                               @RequestParam(required = false) @DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate startCreate,
+                                               @RequestParam(required = false) @DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate endCreate) {
         try {
-            ByteArrayOutputStream outputStream = productService.exportProductToExecl();
+            ByteArrayOutputStream outputStream = productService.exportProductToExecl(productCode , productName , category , startCreate , endCreate);
             byte[] bytes = outputStream.toByteArray();
 
             HttpHeaders headers = new HttpHeaders();

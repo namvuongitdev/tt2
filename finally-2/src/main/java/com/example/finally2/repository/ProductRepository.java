@@ -12,14 +12,22 @@ import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product , Long> {
 
-    @Query(value = "select distinct pro from Product pro left join fetch pro.productCategories procate" +
-            " left join fetch procate.id.category cte where pro.status = :status and cte.status = 'ACTIVE'" +
-            " and (:code is null or LOWER(pro.productCode) LIKE LOWER(CONCAT('%', :code, '%')))" +
-            " and (:name is null or LOWER(pro.productName) LIKE LOWER(CONCAT('%', :name, '%'))) and" +
-            "(:startCreate is null or pro.createAt >= :startCreate) and" +
-            "(:endCreate is null or pro.createAt <= :endCreate) and" +
-            "(:categoryId is null or cte.id = :categoryId)"
-    )
+    @Query(value = "SELECT DISTINCT pro FROM Product pro " +
+            "LEFT JOIN FETCH pro.productCategories procate " +
+            "LEFT JOIN FETCH procate.id.category cte " +
+            "WHERE pro.status = :status " +
+            "AND (:code IS NULL OR LOWER(pro.productCode) LIKE LOWER(:code) ESCAPE '\\') " +
+            "AND (:name IS NULL OR LOWER(pro.productName) LIKE LOWER(:name) ESCAPE '\\') " +
+            "AND (:startCreate IS NULL OR pro.createAt >= :startCreate) " +
+            "AND (:endCreate IS NULL OR pro.createAt <= :endCreate) " +
+            "AND (:categoryId IS NULL  OR (EXISTS (" +
+            "SELECT 1 FROM ProductCategory pc2 " +
+            "JOIN pc2.id.category c2 " +
+            "WHERE pc2.id.product = pro AND pc2.status = 'ACTIVE' AND c2.status ='ACTIVE'" +
+            "AND c2.id = :categoryId) " +
+            "and procate.status = 'ACTIVE' AND cte.status = 'ACTIVE'))")
+
+
     Page<Product> finAllProduct(
             @Param("status") ProductStatus status,
             @Param("code") String productCode,
@@ -29,8 +37,8 @@ public interface ProductRepository extends JpaRepository<Product , Long> {
             @Param("categoryId") Long id,
             Pageable pageable);
 
-    Boolean existsByProductCode(String productCode);
+    Boolean existsByProductCodeAndStatus(String productCode ,ProductStatus status);
 
-    @Query(value = "select pro from Product pro left join fetch pro.productCategories procate left join fetch procate.id.category cte where pro.id=?1")
+    @Query(value = "select pro from Product pro left join fetch pro.productCategories procate left join fetch procate.id.category cte where pro.id=?1 and pro.status = 'ACTIVE'")
     Optional<Product> getProductById(Long id);
 }

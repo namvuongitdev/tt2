@@ -67,9 +67,14 @@ public class CategoryController {
     }
 
     @GetMapping("/export")
-    public ResponseEntity<byte[]> exportExcel() {
+    public ResponseEntity<byte[]> exportExcel(
+            @RequestParam(required = false) String categoryCode,
+            @RequestParam(required = false) String categoryName,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate startCreate,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "dd/MM/yyyy") LocalDate endCreate
+    ) {
         try {
-            ByteArrayOutputStream outputStream = categoryService.exportCategoryToExecl();
+            ByteArrayOutputStream outputStream = categoryService.exportCategoryToExecl(categoryCode , categoryName , startCreate , endCreate);
             byte[] bytes = outputStream.toByteArray();
 
             HttpHeaders headers = new HttpHeaders();

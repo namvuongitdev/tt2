@@ -11,6 +11,8 @@ import com.example.finally2.mapper.CategoryMapper.response.CategoryMapperRespons
 import com.example.finally2.mapper.CategoryMapper.response.CategoryMapperResponseWithPros;
 import com.example.finally2.mapper.CategoryMapper.response.CategoryResponseMapperExecl;
 import com.example.finally2.repository.CategoryRepository;
+import com.example.finally2.util.data.StringUtils;
+import com.example.finally2.util.data.ValueDefault;
 import com.example.finally2.util.file.ExportExecl;
 import com.example.finally2.util.file.UploadImage;
 import com.example.finally2.util.status.CategoryStatus;
@@ -48,37 +50,26 @@ public class CategoryService {
     @Autowired
     private CategoryResponseMapperExecl categoryResponseMapperExecl;
 
-    private Page<Category> categoryExecl = null;
-
     public Page<CategoryResponseWithProducts> getCategorys(String categoryCode, String categoryName, LocalDate startCreate, LocalDate endCreate, Pageable pageable) {
         Page<Category> categories = categoryRepository.findAllCategory(
                 CategoryStatus.ACTIVE,
-                categoryCode,
-                categoryName,
+                StringUtils.replace(categoryCode),
+                StringUtils.replace(categoryName),
                 startCreate,
                 endCreate,
                 pageable);
-           Page<CategoryResponseWithProducts> categoryPage =  categories.map(categoryMapperResponseWithPros::toDTO);
-
-           categoryExecl = categoryRepository.findAllCategory(
-                CategoryStatus.ACTIVE,
-                categoryCode,
-                categoryName,
-                startCreate,
-                endCreate,
-                null);
-
+        Page<CategoryResponseWithProducts> categoryPage = categories.map(categoryMapperResponseWithPros::toDTO);
         return categoryPage;
     }
 
-    public List<CategoryResponse> getCategorysNoProduct(){
+    public List<CategoryResponse> getCategorysNoProduct() {
         return categoryMapperResponse.listToDTO(categoryRepository.findAllByStatus(CategoryStatus.ACTIVE));
     }
 
     @Transactional
     public CategoryResponse addCategory(CategoryRequest request) {
         Category category = categoryMapperRequest.toEntity(request);
-        if(request.getFile() != null){
+        if (request.getFile() != null) {
             category.setImage(uploadImage.upload(request.getFile()));
         }
         return categoryMapperResponse.toDTO(categoryRepository.save(category));
@@ -86,32 +77,42 @@ public class CategoryService {
 
     @Transactional
     public CategoryResponse updateCategory(Long id, CategoryRequest request) {
-        Category category = categoryRepository.findById(id).orElseThrow(() -> new NotFoundExecption("NotFound"));
+        Category category = categoryRepository.getCategoryById(id).orElseThrow(() -> new NotFoundExecption("NotFound"));
         if (request.getFile() != null) {
             category.setImage(uploadImage.upload(request.getFile()));
+        }else{
+            if(request.isRemoveImage()){
+                category.setImage(null);
+            }
         }
         Category newCategory = categoryMapperRequest.updateToEntity(request, category);
         return categoryMapperResponse.toDTO(categoryRepository.save(newCategory));
     }
 
     public CategoryResponse detailCategory(Long id) {
-        Category category = categoryRepository.findById(id).orElseThrow(() -> new NotFoundExecption("NotFound"));
+        Category category = categoryRepository.getCategoryById(id).orElseThrow(() -> new NotFoundExecption("NotFound"));
         return categoryMapperResponse.toDTO(category);
     }
 
     @Transactional
     public CategoryResponse deleteCategory(Long id) {
-        Category category = categoryRepository.findById(id).orElseThrow(() -> new NotFoundExecption("NotFound"));
+        Category category = categoryRepository.getCategoryById(id).orElseThrow(() -> new NotFoundExecption("NotFound"));
         category.setStatus(CategoryStatus.STOPWORKING);
         return categoryMapperResponse.toDTO(category);
     }
 
 
-     public ByteArrayOutputStream exportCategoryToExecl() throws IOException {
-         if (categoryExecl == null) {
-             throw new ListIsEmptyExecption("errorListExecl");
-         }
-        Page<CategoryResponseWithProducts> categoryPage =  categoryExecl.map(categoryMapperResponseWithPros::toDTO);
-         return exportExecl.exportToExcel(categoryResponseMapperExecl.listToDTO(categoryPage.getContent()));
+    public ByteArrayOutputStream exportCategoryToExecl(String categoryCode, String categoryName, LocalDate startCreate, LocalDate endCreate) throws IOException {
+        Page<Category> categories =   categoryRepository.findAllCategory(
+                CategoryStatus.ACTIVE,
+                StringUtils.replace(categoryCode),
+                StringUtils.replace(categoryName),
+                startCreate,
+                endCreate,
+                null);
+        if(categories.getTotalElements() == 0){
+            throw new ListIsEmptyExecption("errorListExecl");
+        }
+        return exportExecl.exportToExcelCategory(categoryResponseMapperExecl.listToDTO(categories.getContent()), ValueDefault.TITLE_CATEGORY);
     }
 }

@@ -3,8 +3,8 @@ package com.example.finally2.dto.categorydto.response;
 import com.example.finally2.dto.productcategorydto.response.ProductCategoryResponse;
 import com.example.finally2.dto.productdto.response.ProductResponse;
 import com.example.finally2.dto.productdto.response.ProductResponseToCategory;
+import com.example.finally2.util.file.UploadImage;
 import com.example.finally2.util.status.CategoryStatus;
-import com.example.finally2.util.status.ProductCategoryStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
@@ -66,5 +66,9 @@ public class CategoryResponseWithProducts {
             return products;
         }
         return products;
+    }
+
+    public String getImage(){
+       return UploadImage.converToBase64(image);
     }
 }

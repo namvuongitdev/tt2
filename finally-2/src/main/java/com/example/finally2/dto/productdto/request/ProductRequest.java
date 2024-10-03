@@ -1,13 +1,9 @@
 package com.example.finally2.dto.productdto.request;
 
-import com.example.finally2.constraint.costomvalidator.category.exist.CategoryExist;
 import com.example.finally2.constraint.costomvalidator.product.unique.UniqueProductCode;
 import com.example.finally2.constraint.groupvalidator.Create;
 import com.example.finally2.constraint.groupvalidator.Update;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,7 +22,7 @@ public class ProductRequest {
     private Long id;
 
     @NotBlank(message = "NotBlank" , groups = {Create.class , Update.class})
-    @Length(min = 3 , max = 50 , message = "Length" , groups = {Create.class , Update.class})
+    @Length(min = 3 , max = 250 , message = "Length" , groups = {Create.class , Update.class})
     private String productName;
 
     @NotBlank(message = "NotBlank" , groups = {Create.class})
@@ -35,21 +31,21 @@ public class ProductRequest {
     private String productCode;
 
     @NotBlank(message = "NotBlank" , groups = {Create.class , Update.class})
-    @Length(min = 3 , max = 50 , message = "Length" , groups = {Create.class , Update.class})
+    @Length(min = 3 , max = 250 , message = "Length" , groups = {Create.class , Update.class})
     private String description;
 
     @NotNull(message = "NotNull" , groups = {Create.class , Update.class})
     @Positive(message = "Positive" , groups = {Create.class , Update.class})
+//    @Max(value = 2000000000, message = "Max", groups = {Create.class, Update.class})
     private Integer price;
 
     @NotNull(message = "NotNull" , groups = {Create.class , Update.class})
     @Positive(message = "Positive" , groups = {Create.class , Update.class})
     private Long quantity;
 
-//    @NotNull(message = "NotNull", groups = {Create.class})
     private MultipartFile file;
 
-    @NotEmpty(message = "NotEmpty", groups = {Create.class , Update.class})
-    @CategoryExist(message = "CategoryExist", groups = {Create.class , Update.class})
+    private boolean removeImage = false;
+
     private List<Long> categorys = new ArrayList<>();
 }
